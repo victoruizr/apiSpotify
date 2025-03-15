@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 require_once __DIR__.'/../../functions.php';
 
@@ -28,6 +31,7 @@ class artists extends Controller
      */
     public function showArtists($id='0TnOYISbd1XYRBk9myaseg'):JsonResponse
     {
+
 
         if(empty($id)){
             return response()->json([

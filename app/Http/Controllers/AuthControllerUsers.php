@@ -2,49 +2,125 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Hash;
-use Validator;
 use App\Models\User;
-
-
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\JWT;
+SecurityScheme::http('bearer', 'JWT');
 class AuthControllerUsers extends Controller
 {
 
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @unauthenticated
+     *
+ */
+    public function loginUser(Request $request){
+
+        $fieldsUserLogin = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string'
+        ]);
+
+
+
+        $fieldsUser = $request->only('email', 'password');
+
+        try{
+
+            if(!$token = JWTAuth::attempt($fieldsUser)){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid Email or Password',
+                ]);
+            }
+
+            $userAuth = auth()->user();
+
+
+            return response()->json(compact('token'));
+
+
+
+        }catch (\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @unauthenticated
+     */
     public function registerUser(Request $request){
-        $request->validate([
-            'q' => 'required|string',
-            'type' => 'required|string',
-            'market' => 'required|string',
-            'limit' => 'required|integer',
-            'offset' => 'required|integer',
-            'include_external' => 'required|string',
 
+        $fieldsUser = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string'
         ]);
 
-        $validatedUsers = $request->validate([
-           'name' => 'required|string|max:255',
-           'email' => 'required|string|email|max:255|unique:users',
-           'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        $userRegistred = User::create([
+        $userCreate = User::create([
            'name' => $request->name,
-           'email' =>$request->email,
-           'password' => Hash::make($request->password)
+           'email' => $request->email,
+           'password' => $request->password
         ]);
 
+        $token = JWTAuth::fromUser($userCreate,[]);
 
-        $userToken = $userRegistred->createToken('authToken')->plainTextToken;
 
         return response()->json([
-            'data' => $userRegistred,
-            'access_token' => $userToken,
-            'token_type' => 'Bearer',
+            'status' => true,
+            'message' => compact('userCreate','token'),
         ]);
 
+
+
+
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function getUserInfo(Request $request){
+        try{
+            if(! $infoUser = JWTAuth::parseToken()->authenticate()){
+                return response()->json([
+                   "status" => false,
+                   "message" => "User not found"
+                ]);
+            }
+        }catch (\Exception $e){
+            return response()->json([
+                "status" => false,
+                "message" => $e->getMessage()
+            ]);
+        }
+
+        return response()->json([compact('infoUser')]);
+    }
+
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userLogout(Request $request){
+        JWTAuth::invalidate(JWTAuth::getToken());
+        return response()->json([
+            'status' => true,
+            'message' => 'user logged out'
+        ]);
     }
 
 

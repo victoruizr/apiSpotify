@@ -42,6 +42,10 @@ RUN composer update
 
 EXPOSE 80
 
+COPY commands/setup.sh /etc/startup.sh
+
+ENTRYPOINT ["sh","/etc/startup.sh"]
+
 
 
 
