@@ -12,6 +12,37 @@ SecurityScheme::http('bearer', 'JWT');
 class AuthControllerUsers extends Controller
 {
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @unauthenticated
+     */
+    public function registerUser(Request $request){
+
+        $fieldsUser = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string'
+        ]);
+
+        $userCreate = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password
+        ]);
+
+        $token = JWTAuth::fromUser($userCreate,[]);
+
+
+        return response()->json([
+            'status' => true,
+            'message' => compact('userCreate','token'),
+        ]);
+
+
+
+
+    }
 
     /**
      * @param Request $request
@@ -52,38 +83,6 @@ class AuthControllerUsers extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
-
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @unauthenticated
-     */
-    public function registerUser(Request $request){
-
-        $fieldsUser = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users,email',
-            'password' => 'required|string'
-        ]);
-
-        $userCreate = User::create([
-           'name' => $request->name,
-           'email' => $request->email,
-           'password' => $request->password
-        ]);
-
-        $token = JWTAuth::fromUser($userCreate,[]);
-
-
-        return response()->json([
-            'status' => true,
-            'message' => compact('userCreate','token'),
-        ]);
-
-
-
 
     }
 

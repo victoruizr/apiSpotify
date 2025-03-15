@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -29,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
             ->routes(function (Route $route) {
                 return Str::startsWith($route->uri, 'api/');
             });
+
 
         Scramble::configure()
             ->withDocumentTransformers(function (OpenApi $openApi) {

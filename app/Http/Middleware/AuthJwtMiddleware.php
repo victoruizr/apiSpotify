@@ -16,18 +16,25 @@ class AuthJwtMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        try{
 
-            $userLogged = JWTAuth::parseToken()->authenticate();
+        if(request()->is("docs/api") || request()->is("api/loginUser") ||request()->is("api/registerUser") ){
+            return $next($request);
+        }elseif(request()->is("api/")){
+            try{
 
-        }catch (\Exception $e){
-            return response([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+                $userLogged = JWTAuth::parseToken()->authenticate();
+
+            }catch (\Exception $e){
+                return response([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
         }
-
         return $next($request);
+
+
+
 
 
     }
