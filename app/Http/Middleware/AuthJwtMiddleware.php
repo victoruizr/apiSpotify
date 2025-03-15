@@ -19,10 +19,12 @@ class AuthJwtMiddleware
 
         if(request()->is("docs/api") || request()->is("api/loginUser") ||request()->is("api/registerUser") ){
             return $next($request);
-        }elseif(request()->is("api/")){
+        }elseif(request()->is("api/*")){
             try{
 
                 $userLogged = JWTAuth::parseToken()->authenticate();
+
+
 
             }catch (\Exception $e){
                 return response([
