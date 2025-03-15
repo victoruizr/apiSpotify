@@ -27,5 +27,4 @@ Configurar el wsl2 en la configuración de docker desktop
 	- Tercero nos quedamos con el token que devuelve este servicio
 	- Cuarto llamamos al servicio authControllerUsers.getUserInfo y en el token introducimos el token obtenido anteriormente y vemos si nos devuelve la información del usuario que nos hemos logueado en caso de que no repetir el proceso
 - Para llamar a los servicios necesitamos añadir dicho token 
-- Si se accede a traves de la url dará error porque hay que pasa --header 'Authorization: Bearer mi_token_generado '
-	
+- Si se accede a traves de la url dará error porque hay que pasar como header --header 'Authorization: Bearer mi_token_generado '
